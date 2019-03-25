@@ -105,6 +105,46 @@ app.post('/api/authenticate', function(req, res) {
   });
 });
 
+
+app.get('/api/getUsers',(req,res)=>
+{
+  var select = req.query.select
+
+  User.find({}, (err,foundData)=>
+  {
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+        res.send(responseObject)
+      }
+    }
+  })
+
+});
+
+
+
 app.get('/checkToken', withAuth, function(req, res) {
   res.sendStatus(200);
 });
