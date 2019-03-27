@@ -40,8 +40,8 @@ app.get('/api/secret', withAuth, function(req, res) {
 });
 
 app.post('/api/register', function(req, res) {
-  const { email, password, username } = req.body;
-  const user = new User({ email, password, username });
+  const { email, password, username,image,skis,level,trophies } = req.body;
+  const user = new User({ email, password, username,image,skis,level,trophies});
   user.save(function(err) {
     if (err) {
       if (err.code === 11000) {
@@ -58,6 +58,7 @@ app.post('/api/register', function(req, res) {
 
       }
       else{
+        console.log(err)
         res.status(500).send("Internal server error!");
       }
     } else {
