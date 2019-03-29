@@ -7,10 +7,11 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     username: {type: String, required: true, unique:true},
-    image: {type: String, required: true},
+    image: {type: String, required: true, default:"https://imgur.com/Ur2U425"},
     skis: {type: String, required: true},
-    level: {type: String, required: true},
-    trophies:{type:[String],required:true},
+    level: {type: Number, required: true,default:0},
+    trophies:{type:[String],required:true, default:[]},
+    activated:{type:Boolean,required:true,default:false}
     /*visited:[{  areaName:String,
                 visitDate:Date
             }]*/

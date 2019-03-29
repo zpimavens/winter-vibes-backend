@@ -38,34 +38,50 @@ app.get('/api/home', function(req, res) {
 app.get('/api/secret', withAuth, function(req, res) {
   res.send('The password is potato');
 });
-
 app.post('/api/register', function(req, res) {
-  const { email, password, username,image,skis,level,trophies } = req.body;
-  const user = new User({ email, password, username,image,skis,level,trophies});
-  user.save(function(err) {
+  const { email, password, username,image,skis,level,trophies} = req.body;
+  
+  var user = new User({ email, password, username,skis});
+  if(image == null & level==null & trophies == null)
+  {
+    user = new User({ email, password, username,skis});
+  }
+  else if (image == null & password==null)
+  {
+    user = new User({ email, password, username,skis,trophies});
+  }
+  else if (image == null & trophies==null)
+  {
+    user = new User({ email, password, username,skis,password});
+  }
+  else if (password == null & trophies==null)
+  {
+    user = new User({ email, password, username,skis,image});
+  }
+  else if (password == null)
+  {
+    user = new User({ email, password, username,skis,image,trophies});
+  }
+  else if (image == null)
+  {
+    user = new User({ email, password, username,skis,trophies,password});
+  }
+  else
+  {
+    user = new User({ email, password, username,skis,image,password});
+  }
+  
+  user.save(function(err) 
+  {
     if (err) {
-      if (err.code === 11000) {
-        if(err.message.includes("email_1"))
-        {
-          console.log(err.message);
-          res.status(501).send("User with that email already exists.");
-        }
-        else
-        {
-          console.log(err.message);
-          res.status(502).send("User with that username already exists.");
-        }
-
-      }
-      else{
-        console.log(err)
-        res.status(500).send("Internal server error!");
-      }
+      console.log(err);
+      res.status(500).send("Error registering new user please try again.");
     } else {
       res.status(200).send("Welcome to the club!");
     }
   });
 });
+
 
 app.post('/api/authenticate', function(req, res) {
   const { email, password } = req.body;
@@ -104,6 +120,47 @@ app.post('/api/authenticate', function(req, res) {
       });
     }
   });
+});
+
+
+
+
+app.get('/api/getUserByLogin',(req,res)=>
+{
+  //var usernameR = "user"
+  var usernameR = req.body
+  var select = req.query.select
+  User.find({username:usernameR}, (err,foundData)=>
+  {
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+        res.send(responseObject)
+      }
+    }
+  })
+
 });
 
 
