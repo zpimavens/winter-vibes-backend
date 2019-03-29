@@ -201,6 +201,16 @@ app.get('/api/getUsers',(req,res)=>
 
 });
 
+app.post('/api/getCurrentUser', withAuth, function(req, res){
+  var responseObject = undefined;
+  User.find({email:req.email}, function(err, user) {
+    if (err) {
+      console.error(err);
+      res.status(500)
+        .json({
+        error: 'Internal error please try again'
+      });
+
 
 
 app.get('/checkToken', withAuth, function(req, res) {
