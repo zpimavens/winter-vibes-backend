@@ -201,7 +201,7 @@ app.get('/api/getUsers',(req,res)=>
 
 });
 
-app.post('/api/getCurrentUser', withAuth, function(req, res){
+app.get('/api/getCurrentUser', withAuth, function(req, res){
   var responseObject = undefined;
   User.find({email:req.email}, function(err, user) {
     if (err) {
@@ -210,7 +210,17 @@ app.post('/api/getCurrentUser', withAuth, function(req, res){
         .json({
         error: 'Internal error please try again'
       });
-
+    } else if (!user) {
+      res.status(401)
+        .json({
+        error: 'Incorrect email'
+      });
+    } else 
+      {
+        res.json(user);
+      }
+  })
+});
 
 
 app.get('/checkToken', withAuth, function(req, res) {

@@ -4,7 +4,6 @@ const Schema = mongoose.Schema
 
 const SkiAreaSchema = new Schema
 ({
-    //country:String,
     name:String,
     openHours:String,
     easyRoute:String,
