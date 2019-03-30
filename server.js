@@ -6,6 +6,7 @@ const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const withAuth = require('./middleware');
+const nodemailer = require('nodemailer')
 
 const app = express();
 
@@ -40,35 +41,48 @@ app.get('/api/secret', withAuth, function(req, res) {
 });
 app.post('/api/register', function(req, res) {
   const { email, password, username,image,skis,level,trophies} = req.body;
+
+  var activation_hash ="";
+  var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+  var length=40;
+
+  for (var i = 0; i < length; i++)
+  {
+    activation_hash += possible.charAt(Math.floor(Math.random() * possible.length));
+  }
+
+ 
+
   
-  var user = new User({ email, password, username,skis});
+  var user = new User({ email, password, username,skis, activation_hash});
   if(image == null & level==null & trophies == null)
   {
-    user = new User({ email, password, username,skis});
+    user = new User({ email, password, username,skis, activation_hash});
   }
   else if (image == null & password==null)
   {
-    user = new User({ email, password, username,skis,trophies});
+    user = new User({ email, password, username,skis,trophies, activation_hash});
   }
   else if (image == null & trophies==null)
   {
-    user = new User({ email, password, username,skis,password});
+    user = new User({ email, password, username,skis,password, activation_hash});
   }
   else if (password == null & trophies==null)
   {
-    user = new User({ email, password, username,skis,image});
+    user = new User({ email, password, username,skis,image, activation_hash});
   }
   else if (password == null)
   {
-    user = new User({ email, password, username,skis,image,trophies});
+    user = new User({ email, password, username,skis,image,trophies, activation_hash});
   }
   else if (image == null)
   {
-    user = new User({ email, password, username,skis,trophies,password});
+    user = new User({ email, password, username,skis,trophies,password, activation_hash});
   }
   else
   {
-    user = new User({ email, password, username,skis,image,password});
+    user = new User({ email, password, username,skis,image,password, activation_hash});
   }
   
   user.save(function(err) 
@@ -78,6 +92,29 @@ app.post('/api/register', function(req, res) {
       res.status(500).send("Error registering new user please try again.");
     } else {
       res.status(200).send("Welcome to the club!");
+
+      var transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth:{
+          user: 'wintervibesactivation@gmail.com',
+          pass: 'Vibes_19'
+        }
+      })
+    
+      var mailOptions = {
+        from: 'wintervibesactivation@gmail.com',
+        to: email,
+        subject: 'Aktywacja konta',
+        text: 'Aby aktywować, kliknij tutaj: http://localhost:8080/api/activate/'+activation_hash
+      }
+    
+      transporter.sendMail(mailOptions, function(error, info){
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
     }
   });
 });
@@ -122,7 +159,19 @@ app.post('/api/authenticate', function(req, res) {
   });
 });
 
+app.get('/api/activate/:activation_hash', (req,res)=>
+{
+  var activation_hash_to_find=req.params.activation_hash;
+  User.findOneAndUpdate({activation_hash:activation_hash_to_find}, {set:{activated:true}}, (err,user)=>{
+    if(err){
+      console.log("Couldn't activate.");
+    }
+    console.log(activation_hash_to_find);
+    console.log(user);
+    res.status(200).send();
+  })
 
+});
 
 
 app.get('/api/getUserByLogin',(req,res)=>

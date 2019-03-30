@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcrypt');
 
+
 const saltRounds = 10;
 
 const UserSchema = new mongoose.Schema({
@@ -11,7 +12,8 @@ const UserSchema = new mongoose.Schema({
     skis: {type: String, required: true},
     level: {type: Number, required: true,default:0},
     trophies:{type:[String],required:true, default:[]},
-    activated:{type:Boolean,required:true,default:false}
+    activated:{type:Boolean,required:true,default:false},
+    activation_hash: {type:String, required:true}
     /*visited:[{  areaName:String,
                 visitDate:Date
             }]*/
