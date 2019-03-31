@@ -176,10 +176,9 @@ app.get('/api/activate/:activation_hash', (req,res)=>
 
 app.get('/api/getUserByLogin',(req,res)=>
 {
-  //var usernameR = "user"
-  var usernameR = req.body
+  var {username} = req.body
   var select = req.query.select
-  User.find({username:usernameR}, (err,foundData)=>
+  User.find({username:username}, (err,foundData)=>
   {
     if(err)
     {
