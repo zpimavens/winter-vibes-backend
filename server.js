@@ -7,10 +7,12 @@ const mongoose = require('mongoose');
 const User = require('./models/User');
 const withAuth = require('./middleware');
 const nodemailer = require('nodemailer')
+const FuzzySearch = require('fuzzy-search');
 
 const app = express();
 
 const secret = 'mysecretsshhh';
+
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
@@ -174,6 +176,57 @@ app.get('/api/activate/:activation_hash', (req,res)=>
 });
 
 
+
+
+app.get('/api/userSearch',(req,res) =>
+{
+  var {username} = req.body
+
+  var select = req.query.select
+
+  User.find({}, (err,foundData)=>
+  {
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+        
+        var searcherUsername = new FuzzySearch(responseObject, ['username'], {
+          caseSensitive: true,});
+        
+        var result = searcherUsername.search(username)
+        res.status(200).send(result)
+      }
+      }
+    }
+
+  )
+})
+
+
+
+
+
 app.get('/api/getUserByLogin',(req,res)=>
 {
   var {username} = req.body
@@ -210,6 +263,7 @@ app.get('/api/getUserByLogin',(req,res)=>
   })
 
 });
+
 
 
 app.get('/api/getUsers',(req,res)=>
