@@ -105,7 +105,7 @@ app.post('/api/register', function(req, res) {
         from: 'wintervibesactivation@gmail.com',
         to: email,
         subject: 'Aktywacja konta',
-        text: 'Aby aktywować, kliknij tutaj: http://localhost:8080/api/activate/'+activation_hash
+        text: 'Aby aktywować, kliknij tutaj:  http://localhost:3000/activate/'+activation_hash+' lub tutaj: http://localhost:8080/api/activate/'+activation_hash
       }
     
       transporter.sendMail(mailOptions, function(error, info){
