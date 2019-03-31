@@ -107,7 +107,7 @@ app.post('/api/register', function(req, res) {
         from: 'wintervibesactivation@gmail.com',
         to: email,
         subject: 'Aktywacja konta',
-        text: 'Aby aktywować, kliknij tutaj: http://localhost:8080/api/activate/'+activation_hash
+        text: 'Aby aktywować, kliknij tutaj:  http://localhost:3000/activate/'+activation_hash+' lub tutaj: http://localhost:8080/api/activate/'+activation_hash
       }
     
       transporter.sendMail(mailOptions, function(error, info){
@@ -149,12 +149,22 @@ app.post('/api/authenticate', function(req, res) {
             error: 'Incorrect email or password'
           });
         } else {
-          // Issue token
+          if(user.activated===true)
+          {
+                      // Issue token
           const payload = { email };
           const token = jwt.sign(payload, secret, {
             expiresIn: '1h'
           });
           res.cookie('token', token, { httpOnly: true }).sendStatus(200);
+          }
+          else{
+            res.status(401)
+            .json({
+            error: 'Incorrect email or password'
+          });
+          }
+
         }
       });
     }
