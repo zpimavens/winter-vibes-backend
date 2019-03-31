@@ -162,13 +162,13 @@ app.post('/api/authenticate', function(req, res) {
 app.get('/api/activate/:activation_hash', (req,res)=>
 {
   var activation_hash_to_find=req.params.activation_hash;
-  User.findOneAndUpdate({activation_hash:activation_hash_to_find}, {set:{activated:true}}, (err,user)=>{
+  User.findOneAndUpdate({activation_hash:activation_hash_to_find}, {$set:{activated:true}}, (err,user)=>{
     if(err){
       console.log("Couldn't activate.");
     }
     console.log(activation_hash_to_find);
     console.log(user);
-    res.status(200).send();
+    res.status(200).send("Activated!");
   })
 
 });
