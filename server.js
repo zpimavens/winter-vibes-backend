@@ -188,7 +188,7 @@ app.get('/api/activate/:activation_hash', (req,res)=>
 
 
 
-app.get('/api/userSearch',(req,res) =>
+app.post('/api/userSearch',(req,res) =>
 {
   var {username} = req.body
 
@@ -222,7 +222,7 @@ app.get('/api/userSearch',(req,res) =>
         }
         
         var searcherUsername = new FuzzySearch(responseObject, ['username'], {
-          caseSensitive: true,});
+          caseSensitive: false});
         
         var result = searcherUsername.search(username)
         res.status(200).send(result)
