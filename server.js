@@ -186,8 +186,6 @@ app.get('/api/activate/:activation_hash', (req,res)=>
 });
 
 
-
-
 app.post('/api/userSearch',(req,res) =>
 {
   var {username} = req.body
@@ -312,6 +310,19 @@ app.get('/api/getUsers',(req,res)=>
   })
 
 });
+
+
+app.post('/api/editUser', (req,res)=>
+{
+  User.findOneAndUpdate({ username: req.body.username }, req.body,
+  function(err) {
+     if (err)
+     res.send(500)
+     else{
+     res.sendStatus(200)
+    }
+   });
+ });
 
 app.get('/api/getCurrentUser', withAuth, function(req, res){
   var responseObject = undefined;
