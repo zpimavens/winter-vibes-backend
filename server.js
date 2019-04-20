@@ -234,7 +234,7 @@ app.post('/api/userSearch',(req,res) =>
 
 
 
-app.get('/api/getUserByLogin',(req,res)=>
+app.post('/api/getUserByLogin',(req,res)=>
 {
   var {username} = req.body
   var select = req.query.select
