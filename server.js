@@ -54,7 +54,6 @@ app.post('/api/register', function(req, res) {
     activation_hash += possible.charAt(Math.floor(Math.random() * possible.length));
   }
 
- 
 
   
   var user = new User({ email, password, username,skis, activation_hash});
@@ -324,6 +323,8 @@ app.post('/api/editUser', (req,res)=>
    });
  });
 
+
+ 
 app.get('/api/getCurrentUser', withAuth, function(req, res){
   var responseObject = undefined;
   User.find({email:req.email}, function(err, user) {
