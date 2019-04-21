@@ -88,10 +88,27 @@ app.post('/api/register', function(req, res) {
   
   user.save(function(err) 
   {
-    if (err) {
-      console.log(err);
-      res.status(500).send("Error registering new user please try again.");
-    } else {
+    if (err) 
+    {
+        if (err.code === 11000) {
+          if(err.message.includes("email_1"))
+          {
+            console.log(err.message);
+            res.status(501).send("User with that email already exists.");
+          }
+          else
+          {
+            console.log(err.message);
+            res.status(502).send("User with that username already exists.");
+          }
+  
+        }
+        else{
+          res.status(500).send("Internal server error!");
+    }
+  } 
+    
+    else {
       res.status(200).send("Welcome to the club!");
 
       var transporter = nodemailer.createTransport({
@@ -218,8 +235,8 @@ app.post('/api/userSearch',(req,res) =>
           responseObject = {count: foundData.length}
         }
         
-        var searcherUsername = new FuzzySearch(responseObject, ['username'], {
-          caseSensitive: false});
+        var searcherUsername = new FuzzySearch(responseObject, ['username'],
+         {caseSensitive: false});
         
         var result = searcherUsername.search(username)
         res.status(200).send(result)
@@ -234,7 +251,7 @@ app.post('/api/userSearch',(req,res) =>
 
 
 
-app.post('/api/getUserByLogin',(req,res)=>
+app.get('/api/getUserByLogin',(req,res)=>
 {
   var {username} = req.body
   var select = req.query.select
