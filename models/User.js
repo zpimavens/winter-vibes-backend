@@ -9,6 +9,7 @@ const UserSchema = new mongoose.Schema({
     password: {type: String, required: true},
     username: {type: String, required: true, unique:true},
     image: {type: String, required: true, default:"https://source.unsplash.com/random/200x200"},
+    town: {type: String, required: false, default:"Unknown"},
     skis: {type: String, required: false,default:"NoSkis"},
     level: {type: Number, required: true,default:0},
     trophies:{type:[String],required:true, default:[]},
