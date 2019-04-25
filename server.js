@@ -343,8 +343,7 @@ app.post('/api/editUser', (req,res)=>
 
  
 app.get('/api/getCurrentUser', withAuth, function(req, res){
-  var responseObject = undefined;
-  User.find({email:req.email}, function(err, user) {
+  User.findOne({email:req.email}, function(err, user) {
     if (err) {
       console.error(err);
       res.status(500)
@@ -358,7 +357,16 @@ app.get('/api/getCurrentUser', withAuth, function(req, res){
       });
     } else 
       {
-        res.json(user);
+        var result = JSON.parse('{}');
+
+        result.username = user.username;
+        result.image = user.image;
+        result.town = user.town;
+        result.skis = user.skis;
+        result.level = user.level;
+        result.trophies = user.trophies;
+
+        res.json(result);
       }
   })
 });
