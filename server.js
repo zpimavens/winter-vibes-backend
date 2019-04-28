@@ -5,6 +5,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('./models/User');
+const SkiArea = require('./models/SkiArea');
 const withAuth = require('./middleware');
 const nodemailer = require('nodemailer')
 const FuzzySearch = require('fuzzy-search');
@@ -247,11 +248,92 @@ app.post('/api/userSearch',(req,res) =>
   )
 })
 
+app.post('/api/skiArenaSearch',(req,res) =>
+{
+  var {name} = req.body
+
+  var select = req.query.select
+
+  SkiArea.find({}, (err,foundData)=>
+  {
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+        
+        var searcherSkiArea = new FuzzySearch(responseObject, ['name'],
+         {caseSensitive: false});
+        
+        var result = searcherSkiArea.search(name)
+        res.status(200).send(result)
+      }
+      }
+    }
+
+  )
+})
+
+
+app.post('/api/getArenaById',(req,res)=>
+{
+  var {id} = req.body
+  var select = req.query.select
+  SkiArea.find({_id:id}, (err,foundData)=>
+  {
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+        res.send(responseObject)
+      }
+    }
+  })
+
+});
 
 
 
-
-app.get('/api/getUserByLogin',(req,res)=>
+app.post('/api/getUserByLogin',(req,res)=>
 {
   var {username} = req.body
   var select = req.query.select
@@ -341,7 +423,7 @@ app.post('/api/editUser', (req,res)=>
  });
 
 
- 
+
 app.get('/api/getCurrentUser', withAuth, function(req, res){
   User.findOne({email:req.email}, function(err, user) {
     if (err) {
@@ -366,7 +448,9 @@ app.get('/api/getCurrentUser', withAuth, function(req, res){
         result.level = user.level;
         result.trophies = user.trophies;
 
-        res.json(result);
+        var to_return = [];
+        to_return[0] = result;
+        res.json(to_return);
       }
   })
 });
