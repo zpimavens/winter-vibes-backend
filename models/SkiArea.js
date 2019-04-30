@@ -1,20 +1,19 @@
 const mongoose = require('mongoose')
-const Schema = mongoose.Schema
 
 
-const SkiAreaSchema = new Schema
+const SkiAreaSchema = new mongoose.Schema
 ({
     name:String,
+    description:String,
+    country:String,
     openHours:String,
     easyRoute:String,
     mediumRoute:String,
     hardRoute:String,
-    freeRide:String
+    freeride:String,
+    snowpark:{type:[String], default:[]}
 
-})
+});
 
 
-
-const SkiArea = mongoose.model('skiarea',SkiAreaSchema)
-
-module.exports = SkiArea
+module.exports = mongoose.model('skiarea',SkiAreaSchema)

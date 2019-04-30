@@ -5,7 +5,7 @@ const path = require('path');
 const jwt = require('jsonwebtoken');
 const mongoose = require('mongoose');
 const User = require('./models/User');
-const SkiArea = require('./models/SkiArea');
+const SkiArea = require('./models/skiarea');
 const withAuth = require('./middleware');
 const nodemailer = require('nodemailer')
 const FuzzySearch = require('fuzzy-search');
@@ -254,8 +254,12 @@ app.post('/api/skiArenaSearch',(req,res) =>
 
   var select = req.query.select
 
+
+
   SkiArea.find({}, (err,foundData)=>
   {
+    console.log(foundData)
+
     if(err)
     {
       console.log(err);
@@ -294,6 +298,100 @@ app.post('/api/skiArenaSearch',(req,res) =>
 })
 
 
+
+app.post('/api/getSkiArenaByName',(req,res) =>
+{
+  var {name} = req.body
+
+  var select = req.query.select
+
+  SkiArea.find({name:name}, (err,foundData)=>
+  {
+    console.log(foundData)
+
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+
+        res.status(200).send(responseObject)
+      }
+      }
+    }
+
+  )
+})
+
+
+
+app.post('/api/getSkiArenaByCountry',(req,res) =>
+{
+  var {country} = req.body
+
+  var select = req.query.select
+
+
+
+  SkiArea.find({country:country}, (err,foundData)=>
+  {
+    if(err)
+    {
+      console.log(err);
+      res.status(500).send()
+    }
+    else
+    {
+      if(foundData.length == 0)
+      {
+        var responseObject = undefined;
+        if(select && select=='count')
+        {
+          responseObject={count:0}
+        }
+        res.status(404).send(responseObject)
+      }
+      else
+      {
+        var responseObject = foundData;
+
+        if(select && select=='count')
+        {
+          responseObject = {count: foundData.length}
+        }
+        
+        res.status(200).send(responseObject)
+      }
+      }
+    }
+
+  )
+})
+
+
+
+
+
+// A z tym cos zrobic?? bo za bardzo nie wiem o co chodzi
 app.post('/api/getArenaById',(req,res)=>
 {
   var {id} = req.body
@@ -362,8 +460,13 @@ app.post('/api/getUserByLogin',(req,res)=>
         if(select && select=='count')
         {
           responseObject = {count: foundData.length}
+
+          var searcherUsername = new FuzzySearch(responseObject, ['username'],
+          {caseSensitive: false});
         }
-        res.send(responseObject)
+        var result = searcherUsername.search(username)
+        res.status(200).send(result)
+        
       }
     }
   })
