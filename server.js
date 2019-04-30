@@ -30,6 +30,7 @@ mongoose.connect(mongo_uri, { useNewUrlParser: true }, function(err) {
 
 app.use(express.static(path.join(__dirname, 'public')));
 
+var clearing = setInterval(clearUnactivated, 60000);
 
 app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.js'));
@@ -203,6 +204,52 @@ app.get('/api/activate/:activation_hash', (req,res)=>
 });
 
 
+app.post('/api/resendActivation', (req,res)=>
+{
+  var {email} = req.body
+  User.findOne({email:email}, function(err, user) {
+    if (err) {
+      console.error(err);
+      res.status(500)
+        .json({
+        error: 'Internal error please try again'
+      });
+    }else if(!user)
+    {
+      res.status(200).send("If user exists email sent.");
+    } 
+    else if(user.activated == false)
+      {
+        res.status(200).send("If user exists email sent.");
+
+        var transporter = nodemailer.createTransport({
+          service: 'gmail',
+          auth:{
+            user: 'wintervibesactivation@gmail.com',
+            pass: 'Vibes_19'
+          }
+        })
+      
+        var mailOptions = {
+          from: 'wintervibesactivation@gmail.com',
+          to: email,
+          subject: 'Aktywacja konta',
+          text: 'Aby aktywować, kliknij tutaj:  http://localhost:3000/activate/'+user.activation_hash
+        }
+      
+        transporter.sendMail(mailOptions, function(error, info){
+          if (error) {
+            console.log(error);
+          } else {
+            console.log('Email sent: ' + info.response);
+          }
+        });
+      } else {res.status(200).send("If user exists email sent.");}
+  })
+});
+
+
+
 app.post('/api/userSearch',(req,res) =>
 {
   var {username} = req.body
@@ -344,6 +391,9 @@ app.post('/api/getSkiArenaByName',(req,res) =>
 
 
 
+
+
+
 app.post('/api/getSkiArenaByCountry',(req,res) =>
 {
   var {country} = req.body
@@ -392,6 +442,8 @@ app.post('/api/getSkiArenaByCountry',(req,res) =>
 
 
 // A z tym cos zrobic?? bo za bardzo nie wiem o co chodzi
+//ja to dałem bo do wyświetlania pojedynczej ski areny po pierwsze chciałem uniknąć problemów z polskimi znakami,
+//a po drugie powtarzały się te nazwy w bazie, a Ola chciała ten endpoint do wyświetlania na gwałt
 app.post('/api/getArenaById',(req,res)=>
 {
   var {id} = req.body
@@ -568,5 +620,40 @@ app.post('/api/logout', function(req, res){
 });
 
 app.listen(process.env.PORT || 8080);
+
+
+function clearUnactivated()
+{
+  var deleted = 0;
+  now = new Date();
+
+  now.setMinutes(now.getMinutes()-30);
+
+  User.countDocuments({activated: false, created: {$lte : now}}, function (err, count){
+    if(err)
+    {
+      console.log("Error counting users to delete.")
+    }
+    else
+    {
+      deleted = count;
+    }
+  })
+
+  User.deleteMany({activated: false, created: {$lte : now}}, function (err, user)
+  {
+    if(err)
+    {
+      console.log("Error clearing unactivated users.")
+    }
+    else
+    {
+      if(deleted!=0)
+      {
+        console.log("Cleared "+deleted+" unactivated users.")
+      }    
+    }
+  })
+}
 
 

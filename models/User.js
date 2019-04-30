@@ -14,7 +14,8 @@ const UserSchema = new mongoose.Schema({
     level: {type: Number, required: true,default:0},
     trophies:{type:[String],required:true, default:[]},
     activated:{type:Boolean,required:true,default:false},
-    activation_hash: {type:String, required:true}
+    activation_hash: {type:String, required:true},
+    created: {type:Date, required:true, default: new Date()}
     /*visited:[{  areaName:String,
                 visitDate:Date
             }]*/
