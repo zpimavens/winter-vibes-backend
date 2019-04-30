@@ -512,13 +512,8 @@ app.post('/api/getUserByLogin',(req,res)=>
         if(select && select=='count')
         {
           responseObject = {count: foundData.length}
-
-          var searcherUsername = new FuzzySearch(responseObject, ['username'],
-          {caseSensitive: false});
         }
-        var result = searcherUsername.search(username)
-        res.status(200).send(result)
-        
+        res.send(responseObject)
       }
     }
   })
