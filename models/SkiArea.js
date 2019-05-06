@@ -11,8 +11,15 @@ const SkiAreaSchema = new mongoose.Schema
     mediumRoute:String,
     hardRoute:String,
     freeride:String,
-    snowpark:{type:[String], default:[]}
-
+    nightRide:Boolean,
+    dragLift:Number,
+    chairLift:Number,
+    gondolas:Number,
+    imgsUrl:{type:[String], default:[]},
+    snowpark:{type:[String], default:[]
+    },
+    skiRental:String,
+    skiSchool:String
 });
 
 

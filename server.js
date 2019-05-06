@@ -297,16 +297,21 @@ app.post('/api/userSearch',(req,res) =>
 
 app.post('/api/skiArenaSearch',(req,res) =>
 {
-  var {name} = req.body
+  var {name,country,minSum,snowpark,nightRide,skiRental,skiSchool,dragLift,chairLift,gondolas} = req.body
+
+  var attributes = {minSum,snowpark,nightRide,skiRental,skiSchool,dragLift,chairLift,gondolas}
 
   var select = req.query.select
 
-
-
-  SkiArea.find({}, (err,foundData)=>
+  SkiArea.find(
+    { "name": { "$regex":name,"$options":"i"},
+      "country": { "$regex":country,"$options":"i"}},
+    
+  (err,foundData)=>
   {
-    console.log(foundData)
 
+    filteredData = filterSkiAreas(foundData,attributes)
+    
     if(err)
     {
       console.log(err);
@@ -314,7 +319,7 @@ app.post('/api/skiArenaSearch',(req,res) =>
     }
     else
     {
-      if(foundData.length == 0)
+      if(filteredData.length == 0)
       {
         var responseObject = undefined;
         if(select && select=='count')
@@ -325,69 +330,84 @@ app.post('/api/skiArenaSearch',(req,res) =>
       }
       else
       {
-        var responseObject = foundData;
+        var responseObject = filteredData;
 
         if(select && select=='count')
         {
-          responseObject = {count: foundData.length}
+          responseObject = {count: filteredData.length}
         }
-        
-        var searcherSkiArea = new FuzzySearch(responseObject, ['name'],
-         {caseSensitive: false});
-        
-        var result = searcherSkiArea.search(name)
-        res.status(200).send(result)
-      }
-      }
-    }
-
-  )
-})
-
-
-
-app.post('/api/getSkiArenaByName',(req,res) =>
-{
-  var {name} = req.body
-
-  var select = req.query.select
-
-  SkiArea.find({name:name}, (err,foundData)=>
-  {
-    console.log(foundData)
-
-    if(err)
-    {
-      console.log(err);
-      res.status(500).send()
-    }
-    else
-    {
-      if(foundData.length == 0)
-      {
-        var responseObject = undefined;
-        if(select && select=='count')
-        {
-          responseObject={count:0}
-        }
-        res.status(404).send(responseObject)
-      }
-      else
-      {
-        var responseObject = foundData;
-
-        if(select && select=='count')
-        {
-          responseObject = {count: foundData.length}
-        }
-
+      
         res.status(200).send(responseObject)
       }
       }
     }
-
   )
 })
+
+
+function filterSkiAreas(dataToFilter,requiredAttribut)
+{
+
+  var filteredData = [];
+  for(var i=0;i<dataToFilter.length;i++)
+        {
+
+        var shouldAdd = true;
+       
+        var data = dataToFilter[i]  
+    for (var property in requiredAttribut) 
+    {
+        
+      if (requiredAttribut.hasOwnProperty(property) && requiredAttribut[property] != undefined) 
+        {
+          
+          if(property=="snowpark" &&  requiredAttribut[property]==true)
+          {
+            if(data[property].length == 0)
+            {
+              shouldAdd = false;
+            }
+          }
+          else if(property=="skiRental" || property=="skiSchool" &&  requiredAttribut[property]==true)
+          {
+            if(data[property] == "")
+            {
+              shouldAdd = false
+            }
+          }
+
+          else if(property=="minSum")
+          {
+            // TODO
+            //console.log(data["hardRoute"].split("km")[0])
+          }
+
+          else if(typeof requiredAttribut[property] == "number")
+          {
+            if(requiredAttribut[property] > data[property])
+            {
+              shouldAdd = false;
+            }
+          }
+          else if (typeof requiredAttribut[property] == "boolean")
+          {
+              if(requiredAttribut[property] != requiredAttribut[property])
+              {
+                shouldAdd = false;
+              }
+          }
+         
+        }
+       
+    }
+    if(shouldAdd)
+    {
+      filteredData.push(data)
+    }
+  
+}
+return filteredData
+}
 
 
 
