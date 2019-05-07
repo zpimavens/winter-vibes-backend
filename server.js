@@ -36,15 +36,8 @@ app.get('/', function (req, res) {
   res.sendFile(path.join(__dirname, 'public', 'index.js'));
 });
 
-app.get('/api/home', function(req, res) {
-  res.send('Welcome!');
-});
-
-app.get('/api/secret', withAuth, function(req, res) {
-  res.send('The password is potato');
-});
 app.post('/api/register', function(req, res) {
-  const { email, password, username,image,skis,level,trophies} = req.body;
+  const { email, password, username} = req.body;
 
   var activation_hash ="";
   var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
@@ -56,38 +49,8 @@ app.post('/api/register', function(req, res) {
     activation_hash += possible.charAt(Math.floor(Math.random() * possible.length));
   }
 
+  var user = new User({ email, password, username, activation_hash});
 
-  
-  var user = new User({ email, password, username,skis, activation_hash});
-  if(image == null & level==null & trophies == null)
-  {
-    user = new User({ email, password, username,skis, activation_hash});
-  }
-  else if (image == null & password==null)
-  {
-    user = new User({ email, password, username,skis,trophies, activation_hash});
-  }
-  else if (image == null & trophies==null)
-  {
-    user = new User({ email, password, username,skis,password, activation_hash});
-  }
-  else if (password == null & trophies==null)
-  {
-    user = new User({ email, password, username,skis,image, activation_hash});
-  }
-  else if (password == null)
-  {
-    user = new User({ email, password, username,skis,image,trophies, activation_hash});
-  }
-  else if (image == null)
-  {
-    user = new User({ email, password, username,skis,trophies,password, activation_hash});
-  }
-  else
-  {
-    user = new User({ email, password, username,skis,image,password, activation_hash});
-  }
-  
   user.save(function(err) 
   {
     if (err) 
@@ -96,12 +59,12 @@ app.post('/api/register', function(req, res) {
           if(err.message.includes("email_1"))
           {
             console.log(err.message);
-            res.status(501).send("User with that email already exists.");
+            res.status(409).send("email");
           }
           else
           {
             console.log(err.message);
-            res.status(502).send("User with that username already exists.");
+            res.status(409).send("username");
           }
   
         }
@@ -111,8 +74,6 @@ app.post('/api/register', function(req, res) {
   } 
     
     else {
-      res.status(200).send("Welcome to the club!");
-
       var transporter = nodemailer.createTransport({
         service: 'gmail',
         auth:{
@@ -130,8 +91,10 @@ app.post('/api/register', function(req, res) {
     
       transporter.sendMail(mailOptions, function(error, info){
         if (error) {
+          res.status(500).send("email not sent")
           console.log(error);
         } else {
+          res.status(201).send("Welcome to the club!");
           console.log('Email sent: ' + info.response);
         }
       });
@@ -195,9 +158,8 @@ app.get('/api/activate/:activation_hash', (req,res)=>
   User.findOneAndUpdate({activation_hash:activation_hash_to_find}, {$set:{activated:true}}, (err,user)=>{
     if(err){
       console.log("Couldn't activate.");
+      res.status(500).send("Error, couldn't activate!");
     }
-    console.log(activation_hash_to_find);
-    console.log(user);
     res.status(200).send("Activated!");
   })
 
@@ -261,7 +223,7 @@ app.post('/api/userSearch',(req,res) =>
     if(err)
     {
       console.log(err);
-      res.status(500).send()
+      res.status(500).send("Internal server error")
     }
     else
     {
@@ -408,9 +370,6 @@ function filterSkiAreas(dataToFilter,requiredAttribut)
 }
 return filteredData
 }
-
-
-
 
 
 
