@@ -330,10 +330,16 @@ function filterSkiAreas(dataToFilter,requiredAttribut)
               shouldAdd = false;
             }
           }
-          else if(property=="skiRental" || property=="skiSchool" &&  requiredAttribut[property]==true)
+          else if(property=="skiRental" || property=="skiSchool" || property=='nightRide' &&  requiredAttribut[property]==true)
           {
             if(data[property] == "")
             {
+              shouldAdd = false
+            }
+          }
+      
+          else if (property == "dragLift" || property == "chairLift" || property == 'gondolas') {
+            if (data[property] == 0) {
               shouldAdd = false
             }
           }
