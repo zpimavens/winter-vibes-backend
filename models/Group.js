@@ -1,15 +1,18 @@
 const mongoose = require('mongoose')
+var autoIncrement = require('mongoose-sequence')(mongoose);
 
 
 const GroupSchema = new mongoose.Schema
 ({
-    id:{type:Number,required:true,unique:true},
+    _id:{type:Number},
     name:{type:String,required:true},
     owner:{type:String,required:true},
     private:{type:Boolean, required:true},
     description:{type:String,required:false},
-    members:{type:[String],default:[owner]},
+    otherMembers:{type:[String],default:[]},
     currentEvents:{type:[String],default:[]},
     pastEvents:{type:[String],default:[]}
 });
-module.exports = mongoose.model('group',GroupSchema)
+GroupSchema.plugin(autoIncrement, {id:'group_seq',inc_field: 'id'});
+
+module.exports = mongoose.model('Group',GroupSchema)

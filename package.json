@@ -11,6 +11,7 @@
     "fuzzy-search": "^3.0.1",
     "jsonwebtoken": "^8.5.0",
     "mongoose": "^5.4.19",
+    "mongoose-sequence": "^5.0.1",
     "nodemailer": "^6.0.0"
   },
   "scripts": {

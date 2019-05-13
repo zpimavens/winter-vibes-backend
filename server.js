@@ -5,14 +5,16 @@ const path = require('path');
 const mongoose = require('mongoose');
 const User = require('./models/User');
 const SkiArea = require('./models/skiarea');
+const Group = require('./models/Group');
 const withAuth = require('./middleware');
 const app = express();
 
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
 app.use(cookieParser());
-require('./routes/userRoutes')(app,User)
+require('./routes/userRoutes')(app,User,withAuth)
 require('./routes/skiAreaRoutes')(app,SkiArea)
+require('./routes/groupRoutes')(app,Group)
 
 const mongo_uri = 'mongodb+srv://adm:passw0rd@skiapp-mxoxw.mongodb.net/test?retryWrites=true';
 mongoose.connect(mongo_uri, { useNewUrlParser: true }, function(err) {

@@ -5,7 +5,8 @@ const secret = 'mysecretsshhh';
 
 
 
-module.exports = function(app,User)
+
+module.exports = function(app,User,withAuth)
 {
     
 app.post('/api/register', function(req, res) {
