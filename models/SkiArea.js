@@ -1,5 +1,6 @@
 const mongoose = require('mongoose')
 
+// Scraped anyway so there is no need to be precised about this model
 
 const SkiAreaSchema = new mongoose.Schema
 ({
@@ -16,11 +17,9 @@ const SkiAreaSchema = new mongoose.Schema
     chairLift:Number,
     gondolas:Number,
     imgsUrl:{type:[String], default:[]},
-    snowpark:{type:[String], default:[]
-    },
+    snowpark:{type:[String], default:[]},
     skiRental:String,
-    skiSchool:String
+    skiSchool:String,
+    currentPublicEvents:[String]
 });
-
-
 module.exports = mongoose.model('skiarea',SkiAreaSchema)

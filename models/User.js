@@ -8,14 +8,15 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     username: {type: String, required: true, unique:true},
-    image: {type: String, required: true, default:"https://source.unsplash.com/random/200x200"},
     town: {type: String, required: false, default:"Unknown"},
     skis: {type: String, required: false,default:""},
     level: {type: Number, required: true,default:0},
     trophies:{type:[String],required:true, default:[]},
     activated:{type:Boolean,required:true,default:false},
     activation_hash: {type:String, required:true},
-    created: {type:Date, required:true, default: new Date()}
+    created: {type:Date, required:true, default: new Date()},
+    groups:{type:[String], default:[]},
+    friends:{type:[String], default:[]}
     /*visited:[{  areaName:String,
                 visitDate:Date
             }]*/
@@ -44,5 +45,4 @@ UserSchema.methods.isCorrectPassword = function(password, callback){
         }
     })
 }
-
 module.exports = mongoose.model('User', UserSchema);
