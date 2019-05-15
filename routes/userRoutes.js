@@ -307,21 +307,19 @@ app.post('/api/register', function(req, res) {
       } else 
         {
           var result = JSON.parse('{}');
-  
+
           result.username = user.username;
           result.image = user.image;
           result.town = user.town;
           result.skis = user.skis;
           result.level = user.level;
           result.trophies = user.trophies;
-  
-          var to_return = [];
-          to_return[0] = result;
-          res.json(to_return);
+
+          res.json([result]);
         }
     })
   });
-  
+ 
 app.post('/api/getUserByLogin',(req,res)=>
 {
   var {username} = req.body
