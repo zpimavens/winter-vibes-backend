@@ -3,9 +3,6 @@ const FuzzySearch = require('fuzzy-search');
 const jwt = require('jsonwebtoken');
 const secret = 'mysecretsshhh';
 
-
-
-
 module.exports = function(app,User,withAuth)
 {
     
@@ -110,7 +107,17 @@ app.post('/api/register', function(req, res) {
             const token = jwt.sign(payload, secret, {
               expiresIn: '1h'
             });
-            res.cookie('token', token, { httpOnly: false }).sendStatus(200);
+            // res.json({
+            //   success: true,
+            //   message: 'Authentication successful!',
+            //   token: token
+            // });
+              res.status(200).cookie('token', token, { httpOnly: true }).json({
+              success: true,
+              token: token,
+              username: user.username,
+            })
+            // res.cookie('token', token, { httpOnly: false }).sendStatus(200);
             }
             else{
               res.status(401)
