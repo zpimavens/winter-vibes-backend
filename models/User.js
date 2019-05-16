@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema({
     email: {type: String, required: true, unique: true},
     password: {type: String, required: true},
     username: {type: String, required: true, unique:true},
-    town: {type: String, required: false, default:"Unknown"},
+    town: {type: String, required: false, default:""},
     image: { type: String, required: true, default: "https://source.unsplash.com/random/200x200" },
     skis: {type: String, required: false,default:""},
     level: {type: Number, required: true,default:0},
