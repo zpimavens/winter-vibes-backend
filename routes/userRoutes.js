@@ -74,8 +74,8 @@ app.post('/api/register', function(req, res) {
   
   
   app.post('/api/authenticate', function(req, res) {
-    const { email, password } = req.body;
-    User.findOne({ email }, function(err, user) {
+    const { username, password } = req.body;
+    User.findOne({ username: username }, function(err, user) {
       if (err) {
         console.error(err);
         res.status(500)
@@ -102,7 +102,8 @@ app.post('/api/register', function(req, res) {
           } else {
             if(user.activated===true)
             {
-                        // Issue token
+              // Issue token
+            const email = user.email;        
             const payload = { email };
             const token = jwt.sign(payload, secret, {
               expiresIn: '1h'
@@ -323,6 +324,7 @@ app.post('/api/register', function(req, res) {
 app.post('/api/getUserByLogin',(req,res)=>
 {
   var {username} = req.body
+
   var select = req.query.select
   User.find({username:username}, (err,foundData)=>
   {
