@@ -2,9 +2,9 @@ module.exports = function(app,Group)
 {
     app.post('/api/groups',(req,res) =>
     {
-        var {name,owner,private,description} = req.body
+        var {name,owner,isPrivate,description} = req.body
 
-        var group = new Group({name,owner,private,description})
+        var group = new Group({name,owner,isPrivate,description})
 
         group.save(function(err)
         {

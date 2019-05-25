@@ -7,7 +7,7 @@ const GroupSchema = new mongoose.Schema
     // _id:{type:Number},
     name:{type:String,required:true},
     owner:{type:String,required:true},
-    private:{type:Boolean, required:true},
+    isPrivate:{type:Boolean, required:true},
     description:{type:String,required:false},
     otherMembers:{type:[String],default:[]},
     currentEvents:{type:[String],default:[]},
