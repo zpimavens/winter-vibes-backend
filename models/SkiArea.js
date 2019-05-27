@@ -18,8 +18,8 @@ const SkiAreaSchema = new mongoose.Schema
     gondolas:Number,
     imgsUrl:{type:[String], default:[]},
     snowpark:{type:[String], default:[]},
+    events:{type:[Number], default: []},
     skiRental:String,
     skiSchool:String,
-    currentPublicEvents:[String]
 });
 module.exports = mongoose.model('skiarea',SkiAreaSchema)
