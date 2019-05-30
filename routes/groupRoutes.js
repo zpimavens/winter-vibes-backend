@@ -61,7 +61,7 @@ module.exports = function(app,Group)
     {
         var {id,member}=req.body
 
-        Group.findOneAndUpdate({_id:id},{ $push: {otherMembers: "member" } }, (err,foundData)=>
+        Group.findOneAndUpdate({id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
         {
           if(err)
           {
@@ -72,6 +72,22 @@ module.exports = function(app,Group)
             res.send(200).send()
           }
         })
+    })
+
+    app.post('/api/delete-user',(req,res) =>
+    {
+      var {id} = req.body
+
+      Group.remove({id:id}, (err)=>{
+        if(err)
+        {
+          res.status(409).send("Failed to delete")
+        }
+        else
+        {
+          res.status(200).send("Deleted")
+        }
+      })
     })
   
 }
