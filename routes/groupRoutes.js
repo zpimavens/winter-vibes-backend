@@ -1,3 +1,5 @@
+const FuzzySearch = require('fuzzy-search');
+
 module.exports = function(app,Group)
 {
     app.post('/api/groups',(req,res) =>
@@ -106,12 +108,10 @@ module.exports = function(app,Group)
           }
         })
     })
-  //Dive.update({ _id: diveId }, { "$pull": { "divers": { "user": userIdToRemove } }}, { safe: true, multi:true }, function(err, obj) {
-  
+
     app.post('/api/delete-user',(req,res)=>
     {
         var{id,username} = req.body
-        console.log(username)
 
         Group.update({id:id},{ '$pull': {otherMembers:username}},(err,foundData)=>
         {
@@ -125,5 +125,69 @@ module.exports = function(app,Group)
           }
         })
     })
-  
+
+
+
+
+app.get('/api/group/:name',(req,res) =>
+{
+      var groupName = req.params.name
+      Group.find({name:groupName}, (err,foundData)=>
+      {
+        if(err)
+        {
+          console.log(err);
+          res.status(500).send("Internal server error")
+        }
+        else
+        {
+            res.status(200).send(foundData)
+        }
+      }
+      )
+    })
+
+
+
+  app.get('/api/groups/search/:name',(req,res) =>
+    {
+          var groupName = req.params.name
+          Group.find({}, (err,foundData)=>
+          {
+            if(err)
+            {
+              console.log(err);
+              res.status(500).send("Internal server error")
+            }
+            else
+            {
+              if(err)
+              {
+                console.log(err);
+                res.status(500).send("Internal server error")
+              }
+              else
+              {
+                if(foundData.length == 0)
+                {
+                  var responseObject = undefined;
+               
+                  res.status(404).send(responseObject)
+                }
+                else
+                {
+                  var responseObject = foundData;
+                  
+                  var searcherUsername = new FuzzySearch(responseObject, ['name'],
+                   {caseSensitive: false});
+                  
+                  var result = searcherUsername.search(groupName)
+                  res.status(200).send(result)
+                }
+                }
+            }
+          }
+          )
+        })
+
 }
