@@ -60,7 +60,8 @@ module.exports = function(app,Group)
     app.post('/api/groups-add-member',(req,res) =>
     {
         var {id,member}=req.body
-
+        console.log(id)
+        console.log(member)
         Group.findOneAndUpdate({id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
         {
           if(err)
@@ -74,7 +75,7 @@ module.exports = function(app,Group)
         })
     })
 
-    app.post('/api/delete-user',(req,res) =>
+    app.post('/api/delete-group',(req,res) =>
     {
       var {id} = req.body
 
@@ -102,6 +103,25 @@ module.exports = function(app,Group)
           else
           {
             res.status(200).send(foundData)
+          }
+        })
+    })
+  //Dive.update({ _id: diveId }, { "$pull": { "divers": { "user": userIdToRemove } }}, { safe: true, multi:true }, function(err, obj) {
+  
+    app.post('/api/delete-user',(req,res)=>
+    {
+        var{id,username} = req.body
+        console.log(username)
+
+        Group.update({id:id},{ '$pull': {otherMembers:username}},(err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Failed to find")
+          }
+          else
+          {
+            res.status(200).send("Deleted")
           }
         })
     })
