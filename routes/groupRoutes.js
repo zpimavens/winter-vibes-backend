@@ -89,5 +89,21 @@ module.exports = function(app,Group)
         }
       })
     })
+
+    app.post('/api/groups-of-user',(req,res)=>
+    {
+        var{username} = req.body
+        Group.find({otherMembers:username},(err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Failed to find")
+          }
+          else
+          {
+            res.status(200).send(foundData)
+          }
+        })
+    })
   
 }
