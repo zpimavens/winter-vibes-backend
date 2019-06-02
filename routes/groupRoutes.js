@@ -6,7 +6,10 @@ module.exports = function(app,Group)
     {
         var {name,owner,isPrivate,description} = req.body
 
-        var group = new Group({name,owner,isPrivate,description})
+        var members = []
+        members.push(owner)
+        var group = new Group({name,owner,isPrivate,description,"otherMembers":members})
+        console.log(group)
 
         group.save(function(err)
         {
