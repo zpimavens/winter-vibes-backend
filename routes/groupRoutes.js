@@ -148,6 +148,25 @@ app.get('/api/group/:name',(req,res) =>
     })
 
 
+    app.get('/api/group-by-id/:id',(req,res) =>
+{
+      var id = req.params.id
+      console.log(id)
+      Group.find({_id:id}, (err,foundData)=>
+      {
+        if(err)
+        {
+          console.log(err);
+          res.status(500).send("Internal server error")
+        }
+        else
+        {
+            res.status(200).send(foundData)
+        }
+      }
+      )
+    })
+
 
   app.get('/api/groups/search/:name',(req,res) =>
     {
