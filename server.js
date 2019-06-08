@@ -14,7 +14,7 @@ app.use(bodyParser.json());
 app.use(cookieParser());
 require('./routes/userRoutes')(app,User,withAuth)
 require('./routes/skiAreaRoutes')(app,SkiArea)
-require('./routes/groupRoutes')(app,Group)
+require('./routes/groupRoutes')(app,Group,User)
 
 const mongo_uri = 'mongodb+srv://adm:passw0rd@skiapp-mxoxw.mongodb.net/test?retryWrites=true';
 mongoose.connect(mongo_uri, { useNewUrlParser: true }, function(err) {

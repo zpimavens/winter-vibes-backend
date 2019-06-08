@@ -1,6 +1,6 @@
 const FuzzySearch = require('fuzzy-search');
 
-module.exports = function(app,Group)
+module.exports = function(app,Group,User)
 {
     app.post('/api/groups',(req,res) =>
     {
@@ -65,9 +65,8 @@ module.exports = function(app,Group)
     app.post('/api/groups-add-member',(req,res) =>
     {
         var {id,member}=req.body
-        console.log(id)
-        console.log(member)
-        Group.findOneAndUpdate({id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
+
+        Group.findOneAndUpdate({_id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
         {
           if(err)
           {
@@ -116,7 +115,7 @@ module.exports = function(app,Group)
     {
         var{id,username} = req.body
 
-        Group.update({id:id},{ '$pull': {otherMembers:username}},(err,foundData)=>
+        Group.update({_id:id},{ '$pull': {otherMembers:username}},(err,foundData)=>
         {
           if(err)
           {
@@ -124,6 +123,7 @@ module.exports = function(app,Group)
           }
           else
           {
+            console.log(foundData)
             res.status(200).send("Deleted")
           }
         })
@@ -168,6 +168,82 @@ app.get('/api/group/:name',(req,res) =>
         }
       }
       )
+    })
+
+
+    app.post('/api/group-modify/change-privacy',(req,res) =>
+    {
+        var {id,private}=req.body
+        Group.findOneAndUpdate({_id:id},{ $set: {isPrivate: private } }, (err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Wrong input")
+          }
+          else
+          {
+            res.send(200).send()
+          }
+        })
+    })
+
+
+    app.post('/api/group-modify/change-description',(req,res) =>
+    {
+        var {id,desc}=req.body
+        Group.findOneAndUpdate({_id:id},{ $set: {description: desc } }, (err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Wrong input")
+          }
+          else
+          {
+            res.send(200).send()
+          }
+        })
+    })
+
+    app.post('/api/group-modify/change-name',(req,res) =>
+    {
+        var {id,name}=req.body
+        Group.findOneAndUpdate({_id:id},{ $set: {name: name } }, (err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Wrong input")
+          }
+          else
+          {
+            res.send(200).send()
+          }
+        })
+    })
+
+    app.post('/api/group-modify/change-owner',(req,res) =>
+    {
+        var {id,owner}=req.body
+        User.count({username:owner},(err,count)=>
+        {
+          if(count==0)
+          {
+            res.status(409).send("Wrong owner")
+          }
+          else
+          {
+            Group.findOneAndUpdate({_id:id},{ $set: {owner: owner } }, (err,foundData)=>
+            {
+              if(err)
+              {
+                res.status(409).send("Wrong input")
+              }
+              else
+              {
+                res.send(200).send()
+              }})
+          }
+       
+        })
     })
 
 
