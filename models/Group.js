@@ -5,7 +5,7 @@ var autoIncrement = require('mongoose-sequence')(mongoose);
 const GroupSchema = new mongoose.Schema
 ({
     // _id:{type:Number},
-    name:{type:String,required:true},
+    name:{type:String,required:true,unique:true},
     owner:{type:String,required:true},
     isPrivate:{type:Boolean, required:true},
     description:{type:String,required:false},

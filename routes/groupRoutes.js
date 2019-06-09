@@ -2,28 +2,43 @@ const FuzzySearch = require('fuzzy-search');
 
 module.exports = function(app,Group,User)
 {
-    app.post('/api/groups',(req,res) =>
-    {
-        var {name,owner,isPrivate,description} = req.body
+  app.post('/api/groups',(req,res) =>
+  {
+      var {name,owner,isPrivate,description} = req.body
 
-        var members = []
-        members.push(owner)
-        var group = new Group({name,owner,isPrivate,description,"otherMembers":members})
-        console.log(group)
-
-        group.save(function(err)
+      Group.count({name:name},(err,count)=>
+      {
+        if(err)
         {
-            if(err)
-            {
-                console.log(err)
-                res.status(409).send("Wrong input")
-            }
-            else
-            {
-                res.status(201).send("Group has been added")
-            }
-        })
-    })
+          res.status(409).send("Error")
+        }
+        else if(count==0)
+        {
+          var members = []
+          members.push(owner)
+          var group = new Group({name,owner,isPrivate,description,"otherMembers":members})
+  
+          group.save(function(err)
+          {
+              if(err)
+              {
+                  console.log(err)
+                  res.status(409).send("Wrong input")
+              }
+              else
+              {
+                  res.status(201).send("Group has been added")
+              }
+          })
+
+        }
+        else
+        {
+            res.status(409).send("Group already exist")
+        }
+     
+      })
+  })
 
     app.get('/api/groups',(req,res) =>
     {
@@ -83,7 +98,7 @@ module.exports = function(app,Group,User)
     {
       var {id} = req.body
 
-      Group.remove({id:id}, (err)=>{
+      Group.remove({_id:id}, (err)=>{
         if(err)
         {
           res.status(409).send("Failed to delete")
@@ -187,6 +202,23 @@ app.get('/api/group/:name',(req,res) =>
         })
     })
 
+    app.post('/api/group-modify',(req,res)=>
+    {
+      var {id,private,desc,name}=req.body
+      Group.findOneAndUpdate({_id:id},{ $set: {isPrivate: private,description: desc,name: name } },
+         (err,foundData)=>
+      {
+        if(err)
+        {
+          res.status(409).send("Wrong input")
+        }
+        else
+        {
+          res.send(200).send()
+        }
+     })
+    })
+
 
     app.post('/api/group-modify/change-description',(req,res) =>
     {
@@ -242,7 +274,6 @@ app.get('/api/group/:name',(req,res) =>
                 res.send(200).send()
               }})
           }
-       
         })
     })
 
@@ -287,5 +318,4 @@ app.get('/api/group/:name',(req,res) =>
           }
           )
         })
-
 }
