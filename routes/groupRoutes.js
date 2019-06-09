@@ -1,10 +1,15 @@
-module.exports = function(app,Group)
+const FuzzySearch = require('fuzzy-search');
+
+module.exports = function(app,Group,User)
 {
     app.post('/api/groups',(req,res) =>
     {
         var {name,owner,isPrivate,description} = req.body
 
-        var group = new Group({name,owner,isPrivate,description})
+        var members = []
+        members.push(owner)
+        var group = new Group({name,owner,isPrivate,description,"otherMembers":members})
+        console.log(group)
 
         group.save(function(err)
         {
@@ -61,7 +66,7 @@ module.exports = function(app,Group)
     {
         var {id,member}=req.body
 
-        Group.findOneAndUpdate({_id:id},{ $push: {otherMembers: "member" } }, (err,foundData)=>
+        Group.findOneAndUpdate({_id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
         {
           if(err)
           {
@@ -73,5 +78,214 @@ module.exports = function(app,Group)
           }
         })
     })
-  
+
+    app.post('/api/delete-group',(req,res) =>
+    {
+      var {id} = req.body
+
+      Group.remove({id:id}, (err)=>{
+        if(err)
+        {
+          res.status(409).send("Failed to delete")
+        }
+        else
+        {
+          res.status(200).send("Deleted")
+        }
+      })
+    })
+
+    app.post('/api/groups-of-user',(req,res)=>
+    {
+        var{username} = req.body
+        Group.find({otherMembers:username},(err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Failed to find")
+          }
+          else
+          {
+            res.status(200).send(foundData)
+          }
+        })
+    })
+
+    app.post('/api/delete-user',(req,res)=>
+    {
+        var{id,username} = req.body
+
+        Group.update({_id:id},{ '$pull': {otherMembers:username}},(err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Failed to find")
+          }
+          else
+          {
+            console.log(foundData)
+            res.status(200).send("Deleted")
+          }
+        })
+    })
+
+
+
+
+app.get('/api/group/:name',(req,res) =>
+{
+      var groupName = req.params.name
+      Group.find({name:groupName}, (err,foundData)=>
+      {
+        if(err)
+        {
+          console.log(err);
+          res.status(500).send("Internal server error")
+        }
+        else
+        {
+            res.status(200).send(foundData)
+        }
+      }
+      )
+    })
+
+
+    app.get('/api/group-by-id/:id',(req,res) =>
+{
+      var id = req.params.id
+      console.log(id)
+      Group.find({_id:id}, (err,foundData)=>
+      {
+        if(err)
+        {
+          console.log(err);
+          res.status(500).send("Internal server error")
+        }
+        else
+        {
+            res.status(200).send(foundData)
+        }
+      }
+      )
+    })
+
+
+    app.post('/api/group-modify/change-privacy',(req,res) =>
+    {
+        var {id,private}=req.body
+        Group.findOneAndUpdate({_id:id},{ $set: {isPrivate: private } }, (err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Wrong input")
+          }
+          else
+          {
+            res.send(200).send()
+          }
+        })
+    })
+
+
+    app.post('/api/group-modify/change-description',(req,res) =>
+    {
+        var {id,desc}=req.body
+        Group.findOneAndUpdate({_id:id},{ $set: {description: desc } }, (err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Wrong input")
+          }
+          else
+          {
+            res.send(200).send()
+          }
+        })
+    })
+
+    app.post('/api/group-modify/change-name',(req,res) =>
+    {
+        var {id,name}=req.body
+        Group.findOneAndUpdate({_id:id},{ $set: {name: name } }, (err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Wrong input")
+          }
+          else
+          {
+            res.send(200).send()
+          }
+        })
+    })
+
+    app.post('/api/group-modify/change-owner',(req,res) =>
+    {
+        var {id,owner}=req.body
+        User.count({username:owner},(err,count)=>
+        {
+          if(count==0)
+          {
+            res.status(409).send("Wrong owner")
+          }
+          else
+          {
+            Group.findOneAndUpdate({_id:id},{ $set: {owner: owner } }, (err,foundData)=>
+            {
+              if(err)
+              {
+                res.status(409).send("Wrong input")
+              }
+              else
+              {
+                res.send(200).send()
+              }})
+          }
+       
+        })
+    })
+
+
+  app.get('/api/groups/search/:name',(req,res) =>
+    {
+          var groupName = req.params.name
+          Group.find({}, (err,foundData)=>
+          {
+            if(err)
+            {
+              console.log(err);
+              res.status(500).send("Internal server error")
+            }
+            else
+            {
+              if(err)
+              {
+                console.log(err);
+                res.status(500).send("Internal server error")
+              }
+              else
+              {
+                if(foundData.length == 0)
+                {
+                  var responseObject = undefined;
+               
+                  res.status(404).send(responseObject)
+                }
+                else
+                {
+                  var responseObject = foundData;
+                  
+                  var searcherUsername = new FuzzySearch(responseObject, ['name'],
+                   {caseSensitive: false});
+                  
+                  var result = searcherUsername.search(groupName)
+                  res.status(200).send(result)
+                }
+                }
+            }
+          }
+          )
+        })
+
 }

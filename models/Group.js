@@ -9,7 +9,7 @@ const GroupSchema = new mongoose.Schema
     owner:{type:String,required:true},
     isPrivate:{type:Boolean, required:true},
     description:{type:String,required:false},
-    otherMembers:{type:[String],default:[]},
+    otherMembers:{type:[String],required:true},
     currentEvents:{type:[String],default:[]},
     pastEvents:{type:[String],default:[]}
 });
