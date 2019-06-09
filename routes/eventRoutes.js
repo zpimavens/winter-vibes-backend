@@ -14,6 +14,14 @@ module.exports = function (app, Event, SkiArea, Group, mongoose) {
         res.status(409).send("Wrong input")
       }
       else {
+        Event.findOneAndUpdate({ _id: saved._id }, { $push: { members: saved.owner } }, function (err, group) {
+          if (err) {
+            console.log("Error adding owner to event members");
+          }
+          else {
+            console.log("Owner added to event members");
+          }
+        })
         Group.findOneAndUpdate({ _id: saved.group }, { $push: { currentEvents: saved._id } }, function (err, group) {
           if (err) {
             console.log("Error adding event to group");
@@ -89,7 +97,7 @@ module.exports = function (app, Event, SkiArea, Group, mongoose) {
 
 
   app.post('/api/list_group_events', (req, res) => {
-    var {groupId} = req.body;
+    var { groupId } = req.body;
     var select = req.query.select
 
     Event.find({ "group": groupId }, (err, foundData) => {
@@ -174,6 +182,41 @@ module.exports = function (app, Event, SkiArea, Group, mongoose) {
     })
   });
 
+  app.post('/api/addMemberToEvent', (req, res) => {
+    var { event, person } = req.body
+
+    //var id_to_save = Event.estimatedDocumentCount();
+
+    //var id = id.toString();
+    Event.findOneAndUpdate({ _id: event }, { $push: { members: person } }, function (err, event) {
+      if (err) {
+        console.log("Error adding person to event members");
+        res.status(500).send("Error adding person");
+      }
+      else {
+        console.log("Person added to event members");
+        res.status(200).send("Person addded");
+      }
+    })
+  })
+
+  app.post('/api/removeMemberFromEvent', (req, res) => {
+    var { event, person } = req.body
+
+    //var id_to_save = Event.estimatedDocumentCount();
+
+    //var id = id.toString();
+    Event.findOneAndUpdate({ _id: event }, { $pull: { members: person } }, function (err, event) {
+      if (err) {
+        console.log("Error removing person from event members");
+        res.status(500).send("Error removing person");
+      }
+      else {
+        console.log("Person removed from event members");
+        res.status(200).send("Person removed");
+      }
+    })
+  })
   app.post('/api/')
 
 }

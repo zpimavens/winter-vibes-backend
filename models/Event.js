@@ -7,12 +7,13 @@ const EventSchema = new mongoose.Schema
     group:{type:String, required:true},
     name:{type:String,required:true},
     owner:{type:String,required:true},
-    skiArena:{type:String,required:true},
+    skiArena:{type:String,required:true, default:" "},
     isPrivate:{type:Boolean, required:true},
     description:{type:String,required:true},
     startDate:{type:Date, required:true},
     endDate:{type:Date, required:true},
-    isCurrent:{type:Boolean, required:true, default:true}
+    isCurrent:{type:Boolean, required:true, default:true},
+    members:{type:[String], required:true, default:[]}
     // data:{type:String,require:true}, - nie wiem co to jest, ale według mnie jest niepotrzebne 
     // image:{type:String,required:true} - po co?
 });
