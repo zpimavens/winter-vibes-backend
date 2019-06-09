@@ -193,9 +193,9 @@ app.post('/api/register', function(req, res) {
   
   
   
-  app.post('/api/userSearch',(req,res) =>
+  app.get('/api/userSearch/:name',(req,res) =>
   {
-    var {username} = req.body
+    var username = req.params.name
   
     var select = req.query.select
   
