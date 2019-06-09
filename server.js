@@ -117,6 +117,8 @@ function moveEventsToPast()
     {
       console.log("No events to clear.");
     }
+
+
 }
 
 
