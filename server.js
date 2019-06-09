@@ -16,7 +16,7 @@ app.use(cookieParser());
 require('./routes/userRoutes')(app,User,withAuth)
 require('./routes/skiAreaRoutes')(app,SkiArea)
 require('./routes/groupRoutes')(app,Group)
-require('./routes/eventRoutes')(app, Event, SkiArea, Group)
+require('./routes/eventRoutes')(app, Event, SkiArea, Group, mongoose)
 
 const mongo_uri = 'mongodb+srv://adm:passw0rd@skiapp-mxoxw.mongodb.net/test?retryWrites=true';
 mongoose.connect(mongo_uri, { useNewUrlParser: true }, function(err) {
@@ -31,7 +31,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 //?????
 var clearingUnactivatedUsers = setInterval(clearUnactivated, 60000); //userów nieaktywowanych od 30 minut czyścimy co minute
- // var movingOldEventsToPast = setInterval(moveEventsToPast, 3600000); //eventy, których data wydarzenia jest starsza od obecnej daty o więcej niż doba są przenoszone 
+//ar movingOldEventsToPast = setInterval(moveEventsToPast, 30000); //eventy, których data wydarzenia jest starsza od obecnej daty o więcej niż doba są przenoszone 
                                                                         //do pastevents w grupach i usuwane z skiaren -- jeszcze nietestowane
 
 
@@ -89,11 +89,11 @@ function clearUnactivated()
 function moveEventsToPast()
 {
     now = new Date();
-    now.setDay(now.getDay()-1);
+    now.setHours(now.getHours()-24);
 
     var eventsToMove = [];
 
-    Event.find({date: {$lte:now}, isCurrent: true}, function (err,array){
+    Event.find({endDate: {$lte:now}, isCurrent: true}, function (err,array){
         if(err)
         {
             console.log(err);
@@ -102,14 +102,23 @@ function moveEventsToPast()
         else{
             eventsToMove = array;
         }
-    })
+    }).then
 
-    for(var i = 0; i < eventsToMove.length; i++)
+    if(eventsToMove.length>0)
     {
-        SkiArea.findOneAndUpdate({_id: eventsToMove[i].skiArena}, {$pull:{events:eventsToMove[i].id}});
-        Group.findOneAndUpdate({_id: eventsToMove[i].group}, {$push: {pastEvents:eventsToMove[i].id}, $pull:{currentEvents:eventsToMove[i].id}});
-        Event.findOneAndUpdate({id: eventsToMove[i].id}, {isCurrent: false});
+      console.log("Moving "+eventsToMove.length+" events to the past.")
+      for (var i = 0; i < eventsToMove.length; i++) {
+        SkiArea.findOneAndUpdate({ _id: eventsToMove[i].skiArena }, { $pull: { events: eventsToMove[i]._id } });
+        Group.findOneAndUpdate({ _id: eventsToMove[i].group }, { $push: { pastEvents: eventsToMove[i]._id }, $pull: { currentEvents: eventsToMove[i]._id } });
+        Event.findOneAndUpdate({ _id: eventsToMove[i]._id }, { isCurrent: false });
+      }
     }
+    else
+    {
+      console.log("No events to clear.");
+    }
+
+
 }
 
 
