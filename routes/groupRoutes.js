@@ -44,7 +44,7 @@ module.exports = function(app,Group,User)
     {
         var select = req.query.select   
 
-        Group.find({}, (err,foundData)=>
+        Group.find({isPrivate:false}, (err,foundData)=>
         {
           if(err)
           {
