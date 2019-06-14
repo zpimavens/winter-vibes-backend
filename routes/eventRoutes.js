@@ -97,10 +97,109 @@ module.exports = function (app, Event, SkiArea, Group, mongoose) {
 
 
   app.post('/api/list_group_events', (req, res) => {
+    var responseObject = [];
+    var { groupId } = req.body;
+
+    var responseCurrent = undefined;
+    var responsePast = undefined;
+
+    Event.find({ "group": groupId, "isCurrent": true }, (err, foundData) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send()
+      }
+      else {
+        if (foundData.length == 0) {
+          responseCurrent = [];
+
+          Event.find({ "group": groupId, "isCurrent": false }, (err, foundPastData) => {
+            if (err) {
+              console.log(err);
+              res.status(500).send()
+            }
+            else {
+              if (foundPastData.length == 0) {
+                responsePast = [];
+
+                if(responseCurrent.length==0 && responsePast.length ==0)
+                {
+                  res.status(404).send(responseObject);
+                }
+              }
+              else {
+                responsePast = foundPastData;
+                responseObject.push(responseCurrent);
+                responseObject.push(responsePast);
+                res.status(200).send(responseObject)
+              }
+            }
+          })
+
+        }
+        else {
+          responseCurrent = foundData;
+
+          Event.find({ "group": groupId, "isCurrent": false }, (err, foundPastData) => {
+            if (err) {
+              console.log(err);
+              res.status(500).send()
+            }
+            else {
+              if (foundPastData.length == 0) {
+                responsePast = [];
+                responseObject.push(responseCurrent);
+                responseObject.push(responsePast);
+                res.status(200).send(responseObject)
+              }
+              else {
+                responsePast = foundPastData;
+                responseObject.push(responseCurrent);
+                responseObject.push(responsePast);
+                res.status(200).send(responseObject)
+              }
+            }
+          })
+
+        }
+      }
+    })
+
+    /*
+    Event.find({ "group": groupId, "isCurrent": false }, (err, foundData) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send()
+      }
+      else {
+        if (foundData.length == 0) {
+          responsePast = [];
+        }
+        else {
+          responsePast = foundData;
+        }
+      }
+    })
+  
+
+
+    if (responseCurrent.length == 0 && responsePast.length == 0) {
+      res.status(404).send(responseObject);
+    }
+    else {
+      responseObject.push(responseCurrent);
+      responseObject.push(responsePast);
+      res.status(200).send()
+    }
+    */
+
+  })
+
+
+  app.post('/api/list_current_group_events', (req, res) => {
     var { groupId } = req.body;
     var select = req.query.select
 
-    Event.find({ "group": groupId }, (err, foundData) => {
+    Event.find({ "group": groupId , "isCurrent": true}, (err, foundData) => {
       if (err) {
         console.log(err);
         res.status(500).send()
@@ -124,6 +223,37 @@ module.exports = function (app, Event, SkiArea, Group, mongoose) {
       }
     })
   })
+
+
+  app.post('/api/list_past_group_events', (req, res) => {
+    var { groupId } = req.body;
+    var select = req.query.select
+
+    Event.find({ "group": groupId , "isCurrent": false}, (err, foundData) => {
+      if (err) {
+        console.log(err);
+        res.status(500).send()
+      }
+      else {
+        if (foundData.length == 0) {
+          var responseObject = undefined;
+          if (select && select == 'count') {
+            responseObject = { count: 0 }
+          }
+          res.status(404).send(responseObject)
+        }
+        else {
+          var responseObject = foundData;
+
+          if (select && select == 'count') {
+            responseObject = { count: foundData.length }
+          }
+          res.send(responseObject)
+        }
+      }
+    })
+  })
+
 
   app.get('/api/list_public_events', (req, res) => {
     var select = req.query.select
