@@ -81,15 +81,25 @@ module.exports = function(app,Group,User)
     {
         var {id,member}=req.body
 
-        Group.findOneAndUpdate({_id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
+        Group.find({otherMembers:member},(err,foundData)=>
         {
-          if(err)
+          if(foundData.length == 0)
           {
-            res.status(409).send("Wrong input")
+            Group.findOneAndUpdate({_id:id},{ $push: {otherMembers: member } }, (err,foundData)=>
+            {
+              if(err)
+              {
+                res.status(409).send("Wrong input")
+              }
+              else
+              {
+                res.send(200).send()
+              }
+            })
           }
           else
           {
-            res.send(200).send()
+            res.status(409).send("Already exist")
           }
         })
     })
