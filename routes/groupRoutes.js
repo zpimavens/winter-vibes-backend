@@ -44,6 +44,44 @@ module.exports = function(app,Group,User)
     {
         var select = req.query.select   
 
+        Group.find( (err,foundData)=>
+        {
+          if(err)
+          {
+            console.log(err);
+            res.status(500).send()
+          }
+          else
+          {
+            if(foundData.length == 0)
+            {
+              var responseObject = undefined;
+              if(select && select=='count')
+              {
+                responseObject={count:0}
+              }
+              res.status(404).send(responseObject)
+            }
+            else
+            {
+              var responseObject = foundData;
+      
+              if(select && select=='count')
+              {
+                responseObject = {count: foundData.length}
+              }
+              res.send(responseObject)
+            }
+          }
+        })
+    })
+
+
+
+    app.get('/api/groups-public',(req,res) =>
+    {
+        var select = req.query.select   
+
         Group.find({isPrivate:false}, (err,foundData)=>
         {
           if(err)
@@ -76,6 +114,7 @@ module.exports = function(app,Group,User)
         })
     })
 
+
     //  w body id  jako id grupy i member jako username do dodania {id,member}
     app.post('/api/groups-add-member',(req,res) =>
     {
@@ -100,6 +139,22 @@ module.exports = function(app,Group,User)
           else
           {
             res.status(409).send("Already exist")
+          }
+        })
+    })
+
+    app.post('/api/groups-search',(req,res)=>
+    {
+        var{username} = req.body
+        Group.find({$or: [ {isPrivate:false},{otherMembers:username}]},(err,foundData)=>
+        {
+          if(err)
+          {
+            res.status(409).send("Failed to find")
+          }
+          else
+          {
+            res.status(200).send(foundData)
           }
         })
     })
